@@ -74,14 +74,12 @@ std::pair<std::string, std::string> BinIO::read(std::string filename){
     //read table size
     int size;
     rf.read((char *)&size, sizeof(size));
-    std::cout << size << '\n';
     //read table
     table.resize(size);
     rf.read((char*)&table[0], size);
     ret.first = table;
     //read code size
     rf.read((char *)&size, sizeof(size));
-    std::cout << size << '\n';
     ret.second = convertReadFile(filename, rf, size);
     
     rf.read((char *)&size, sizeof(size));
