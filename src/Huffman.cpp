@@ -7,9 +7,9 @@
 #include "my_algorithms.h"
 
 
-Huffman::Huffman(const std::string& _word) {
+Huffman::Huffman(const std::string& word) {
     root = new Node();
-    word = _word;
+    this->word = word;
     initFreqs();
     initTree();
     initCodes(root, "");
@@ -80,10 +80,10 @@ void Huffman::initTree() {
     }
     root = pq.top();
 }
-void Huffman::initCodes(Node* curRoot, std::string curCode){
+void Huffman::initCodes(Node* curRoot, std::string curCode) {
     if(curRoot->left == nullptr) {
         codes[curRoot->letter] = curCode;
-    }else {
+    } else {
         for(int i = 0; i < 2; ++i) {
             auto nxtRoot = i == 0 ? curRoot->left : curRoot->right;
             initCodes(nxtRoot, curCode += char(i + '0'));

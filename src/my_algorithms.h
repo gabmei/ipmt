@@ -2,18 +2,21 @@
 #include<vector>
 #include<unordered_map>
 
+static int charID(char c) { return int(c) - int(' '); }
+const static int alpha = 95;
+
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
-struct Huffman{
+struct Huffman {
 public:
-    struct Node{
+    struct Node {
         char letter;
         int freq;
         Node* left;
         Node* right;
-        Node(char _letter = '\0', int _freq = 0, Node* _left = nullptr, Node* _right = nullptr):
-            letter(_letter), freq(_freq), left(_left), right(_right){}
-        ~Node(){
+        Node(char letter = '\0', int freq = 0, Node* left = nullptr, Node* right = nullptr):
+            letter(letter), freq(freq), left(left), right(right){}
+        ~Node() {
             delete left;
             delete right;
         }
@@ -21,15 +24,13 @@ public:
             return freq < other.freq;
         }
     };
-    Huffman(const std::string& _word);
 
+    Huffman(const std::string& word);
     ~Huffman();
     std::string encode();
     std::string decode(const std::string& encoded);
     std::string getFormatedCodes();
 private:
-    static int charID(char c) { return int(c) - int(' '); }
-    const static int alpha = 95;
     Node* root;
     std::string word;
     std::vector<int> freqs;
@@ -39,5 +40,26 @@ private:
     void initTree();
     void initCodes(Node* curRoot, std::string curCode);
 };
-
 #endif // HUFFMAN_H
+
+#ifndef SUFFIXARRAY_H
+#define SUFFIXARRAY_H
+struct SuffixArray {
+public:
+    SuffixArray(const std::string& text);
+    SuffixArray(const std::vector<int>& sa, const std::vector<int>& freq);
+    std::vector<int> matchPattern(const std::string& pattern);
+    
+    std::string getText();
+    std::vector<int> getSuffixArray();
+    int& operator[](int index);
+private:
+    std::string text;
+    std::vector<int> sa;
+
+    void countSort(const std::vector<int>& count);
+    void buildSuffixArray();
+    int lowerBound(const std::string& pattern);
+    int upperBound(const std::string& pattern);
+};
+#endif // SUFFIXARRAY_H

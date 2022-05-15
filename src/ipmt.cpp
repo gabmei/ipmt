@@ -18,15 +18,97 @@ string InterruptionMessages[] = {
     "File not found",
     "Unknown option"
 };
-void usage(InterruptionTypes status){
+void usage(InterruptionTypes status) {
     std::cerr << InterruptionMessages[status] << '\n'; 
     exit (status);
 }
 
-int main(int argc, char **argv){
-    
+#define RED "\033[1;31m"
+#define WHITE "\033[0m"
+void printOcurrences(const string& textLine, int lineIndex, vector<int>& matchLengths){
+    if(*max_element(begin(matchLengths), end(matchLengths)) == 0) return;
+    int textLen = (int)textLine.length();
+    int redIndex = 0;
+    cout << "Line " << lineIndex << ": ";
+    bool onRed = false;
+    for (int i = 0; i < textLen; ++i){
+        redIndex = max(redIndex, i + matchLengths[i]);
+
+        if(!onRed && i < redIndex) { // at the start of a pattern match
+            onRed = true;
+            cout << RED;
+        }
+
+        if(onRed && i == redIndex) { // at the end of a pattern match
+            onRed = false;
+            cout << WHITE;
+        }
+        cout << textLine[i];
+    }
+    if(onRed && redIndex == textLen) cout << WHITE;
+    cout << '\n';
+}
+vector<int> getFrequencies(const string& text) {
+    vector<int> freq(alpha);
+    for(auto& letter : text) {
+        freq[charID(letter)] += 1;
+    }
+    return freq;
+}
+pair<vector<int>, vector<int>> getSuffixData(ifstream& indexfile) {
+    int n;
+    indexfile >> n;
+    if(n == -1) return {{}, {}};
+    vector<int> sa(n), freq(alpha);
+    for(auto& x : sa) indexfile >> x;
+    for(auto& x : freq) indexfile >> x;
+    return {sa, freq};
+}
+
+void indexLine(const string& textLine, ofstream& indexfile){
+    SuffixArray suffixArray(textLine);
+    auto sa = suffixArray.getSuffixArray();
+    auto freq = getFrequencies(textLine);
+    indexfile << (int)sa.size() << ' ';
+    for(auto& x : sa){
+        indexfile << x << ' ';
+    }
+    indexfile << '\n';
+    for(auto& x : freq) {
+        indexfile << x << ' ';
+    }
+    indexfile << '\n';
+}
+void searchLine(const vector<string>& patterns, int& countOcorrences, bool countFlag, int& lineIndex, bool& endFlag, ifstream& indexfile) {
+    auto [sa, freq] = getSuffixData(indexfile);
+    if(sa.empty()) {
+        endFlag = true;
+        return;
+    }
+    SuffixArray suffixArray(sa, freq);
+    auto textLine = suffixArray.getText();
+    vector<int> matchLengths;
+    if(!countFlag) {
+        matchLengths.assign((int)textLine.size(), 0);
+    }
+    for(auto& pattern : patterns) {
+        auto occorrences = suffixArray.matchPattern(pattern);
+        if(countFlag) {
+            countOcorrences += (int)occorrences.size();
+        } else {
+            for(int position : occorrences) {
+                matchLengths[position] = max(matchLengths[position], (int)pattern.size());
+            }
+        }
+    }
+    if(!countFlag) {
+        printOcurrences(textLine, lineIndex++, matchLengths);
+    }
+}
+
+int main(int argc, char **argv) {
     int opt;
-    bool count_flag = false;
+    bool countFlag = false;
     fstream patternsFile;
 
     static struct option long_options[] = {
@@ -42,7 +124,7 @@ int main(int argc, char **argv){
     while ((opt = getopt_long (argc, argv, "p:ch", long_options, &option_index)) != -1) {  
       switch (opt) {
         case 'c':
-            count_flag = true;
+            countFlag = true;
             break;
         case 'p':
 	        if (optarg == NULL && optind < argc && argv[optind][0] != '-') {
@@ -71,29 +153,61 @@ int main(int argc, char **argv){
     if(find(begin(modes), end(modes), curMode) == end(modes)){
         usage(UNKNOWN_ARGUMENT);
     }
-    /*
-    vector<string> patterns;
-    if(patternsFile.is_open()){
-        string pattern;
-        while(getline(patternsFile, pattern)){
-            patterns.emplace_back(pattern);
-        }
-        patternsFile.close();
-    }else{
-        patterns.emplace_back(argv[optind]);
-        ++optind;
-    }
-    //make sure all patterns are different
-    sort(begin(patterns), end(patterns));
-    patterns.erase(unique(begin(patterns),end(patterns)), end(patterns));
-    */
 
+    // checar argc  
     //cout << curMode << '\n';
-    if(curMode == "index"){
-        
-    }else if(curMode == "search"){
+    if(curMode == "index") {
+        string textfilename = argv[optind];
+        string indexfilename = textfilename;
+        size_t pos = textfilename.find_last_of(".");
+        if(pos != string::npos) {
+            indexfilename = textfilename.substr(0, pos);
+        }
+        indexfilename += ".idx";
+        ifstream textfile(textfilename);
+        ofstream indexfile(indexfilename);
+        if(!textfile) {
+            usage(NON_EXISTING_FILE);
+        }
+        vector<string> textLines;
+        string textLine;
+        while(getline(textfile, textLine)) {
+            indexLine(textLine, indexfile);
+        }
+        indexfile << -1;
+        textfile.close();
+        indexfile.close();
+    } else if (curMode == "search"){
+        vector<string> patterns;
+        if(patternsFile.is_open()){
+            string pattern;
+            while(getline(patternsFile, pattern)){
+                patterns.emplace_back(pattern);
+            }
+            patternsFile.close();
+        } else {
+            patterns.emplace_back(argv[optind]);
+            ++optind;
+        }
+        //make sure all patterns are different
+        sort(begin(patterns), end(patterns));
+        patterns.erase(unique(begin(patterns),end(patterns)), end(patterns));
 
-    }else if (curMode == "zip"){
+        string indexfilename = argv[optind]; 
+        ifstream indexfile(indexfilename);
+        if(!indexfile) {
+            usage(NON_EXISTING_FILE);
+        }
+        int countOcorrences = 0;
+        int lineIndex = 1;
+        bool endFlag = false;
+        while(!endFlag) {
+            searchLine(patterns, countOcorrences, countFlag, lineIndex, endFlag, indexfile);
+        }
+        if(countFlag) {
+            cout << countOcorrences << '\n';
+        }
+    } else if (curMode == "zip"){
         fstream indexfile;
         string filename = argv[optind];
         string outputfilename = filename + ".myz";
@@ -109,9 +223,8 @@ int main(int argc, char **argv){
         outputfile << huffman.encode();
         //indexfile >> input;
         cout << input << '\n';
-    }else{ // curMode == "unzip"
+    } else { // curMode == "unzip"
 
     }
-    
     return 0;
 }
