@@ -1,15 +1,14 @@
-#include<bits/stdc++.h>
+#include <fstream>
+#include <algorithm>
+#include <iostream>
 #include "my_algorithms.h"
-
-using namespace std;
-
 
 BinIO::BinIO(){
     currentBit = 0;
     bitBuffer = 0;
 }
 
-void BinIO::writeBit (ofstream& wf, int bit) {
+void BinIO::writeBit (std::ofstream& wf, int bit) {
     bitBuffer <<= 1;
     if (bit) bitBuffer |= 0x1;
     currentBit++;
@@ -20,18 +19,21 @@ void BinIO::writeBit (ofstream& wf, int bit) {
     }
 }
 
-void BinIO::flushBits (ofstream& wf) {
+int BinIO::flushBits (std::ofstream& wf) {
+    int cnt = 0;
     while (currentBit) {
         writeBit(wf, 0);
+        cnt += 1;
     }
+    return cnt;
 }
 
-string BinIO::convertReadFile(string filename, ifstream& file, int codeSize) {
+std::string BinIO::convertReadFile(std::string filename, std::ifstream& file, int codeSize) {
     std::vector<unsigned char> fileData(codeSize);
     file.read((char*) &fileData[0], codeSize);
-    string outputZeroOne = "";
+    std::string outputZeroOne = "";
     for(auto code : fileData){
-        string zeroOne = "";
+        std::string zeroOne = "";
         for(int i = 0; i < 8; ++i){
             zeroOne += char((code & 1) + '0');
             code >>= 1;
@@ -42,15 +44,14 @@ string BinIO::convertReadFile(string filename, ifstream& file, int codeSize) {
     return outputZeroOne;
 }
 
-void BinIO::write(string table, string code){
-    ofstream wf("test.bin", ios::binary);
-    int codeSize = code.length()/8;
-    if(code.length() % 8 != 0){
+void BinIO::write(std::string table, std::string code, std::string filename){
+    std::ofstream wf(filename, std::ios::binary);
+    int codeSize = code.length() / 8;
+    if(code.length() % 8 != 0) {
         codeSize++;
     }
     //write table size to file
     int size = table.length();
-    char x = (char)size;
     wf.write((char *)&size, sizeof(size));
     //write table to file
     wf.write(&table[0],size);
@@ -61,14 +62,15 @@ void BinIO::write(string table, string code){
     for(int i = 0; i < len; ++i){
         writeBit(wf, code[i] - '0');
     }
-    flushBits(wf);
+    auto cnt = flushBits(wf);
+    wf.write((char *)&cnt, sizeof(cnt));
     wf.close();
 }
 
-pair<string, string> BinIO::read(){
-    ifstream rf("test.bin", ios::binary);
-    string table;
-    pair<string, string> ret;
+std::pair<std::string, std::string> BinIO::read(std::string filename){
+    std::ifstream rf(filename, std::ios::binary);
+    std::string table;
+    std::pair<std::string, std::string> ret;
     //read table size
     int size;
     char aux;
@@ -81,7 +83,12 @@ pair<string, string> BinIO::read(){
     //read code size
     rf.read((char *)&aux, 4);
     size = (int)aux;
-    ret.second = convertReadFile("test.bin", rf, size);
+    ret.second = convertReadFile(filename, rf, size);
+    
+    rf.read((char *)&aux, 4);
+    int cnt = (int)aux;
     rf.close();
+    
+    while(cnt-- > 0) ret.second.pop_back();
     return ret;
 }

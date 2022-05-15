@@ -1,11 +1,10 @@
-#include<string>
+#include <string>
 #include <iostream>
-#include<vector>
-#include<unordered_map>
+#include <vector>
+#include <unordered_map>
 #include <queue>
 #include <functional>
 #include "my_algorithms.h"
-
 
 Huffman::Huffman(const std::string& word) {
     root = new Node();
@@ -15,8 +14,26 @@ Huffman::Huffman(const std::string& word) {
     initCodes(root, "");
 }
 
+Huffman::Huffman() {
+    root = new Node();
+}
+
 Huffman::~Huffman() {
     delete root;
+}
+
+void Huffman::addWord(char letter, const std::string& code) {
+    auto cur = root;
+    for(auto& bit : code) {
+        if(bit == '0') {
+            if(cur->left == nullptr) cur->left = new Node();
+            cur = cur->left;
+        } else if (bit == '1') {
+            if(cur->right == nullptr) cur->right = new Node();
+            cur = cur->right;
+        }
+    }
+    cur->letter = letter;
 }
 
 std::string Huffman::encode() {
@@ -42,10 +59,10 @@ std::string Huffman::decode(const std::string& encoded) {
 
 std::string Huffman::getFormatedCodes() {
     std::string printedCodes = "";
-    for(char letter = ' '; charID(letter) < alpha; ++letter) {
+    for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
         int id = charID(letter);
         if(freqs[id] > 0){
-            printedCodes += std::string(1, letter) + ": " + codes[letter] + "\n";
+            printedCodes += std::string(1, letter) + codes[letter] + '\n';
         }   
     }
     return printedCodes;
@@ -59,7 +76,7 @@ void Huffman::initFreqs() {
 
 void Huffman::initTree() {
     std::priority_queue<Node*, std::vector<Node*>, std::greater<Node*>> pq;
-    for(char letter = ' '; charID(letter) < alpha; ++letter) {
+    for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
         int id = charID(letter);
         if(freqs[id] > 0){
             auto* node = new Node(letter, freqs[id]);

@@ -13,7 +13,7 @@ SuffixArray::SuffixArray(const std::vector<int>& sa, const std::vector<int>& fre
     this->sa = sa;
     text.assign((int)sa.size(), char(31));
     int position = 1;
-    for(char letter = ' '; charID(letter) < alpha; ++letter) {
+    for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
         for(int count = freq[charID(letter)]; count > 0; --count) {
             text[sa[position++]] = letter;
         }

@@ -1,9 +1,11 @@
-#include<string>
-#include<vector>
-#include<unordered_map>
+#include <string>
+#include <vector>
+#include <unordered_map>
 
-static int charID(char c) { return int(c) - int(' '); }
+const static int firstLetter = ' ';
+static int charID(char c) { return int(c) - int(firstLetter); }
 const static int alpha = 95;
+
 
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
@@ -26,7 +28,9 @@ public:
     };
 
     Huffman(const std::string& word);
+    Huffman();
     ~Huffman();
+    void addWord(char letter, const std::string& code);
     std::string encode();
     std::string decode(const std::string& encoded);
     std::string getFormatedCodes();
@@ -63,18 +67,19 @@ private:
     int upperBound(const std::string& pattern);
 };
 #endif // SUFFIXARRAY_H
+
 #ifndef BINIO_H
 #define BINIO_H
 struct BinIO{
     public:
         BinIO();
-        std::pair<std::string,std::string> read();
-        void write(std::string table, std::string code);
+        std::pair<std::string,std::string> read(std::string filename);
+        void write(std::string table, std::string code, std::string filename);
     private:
         int currentBit;
         unsigned char bitBuffer;
         std::string convertReadFile(std::string filename, std::ifstream& file, int codeSize);
-        void flushBits(std::ofstream& wf);
+        int flushBits(std::ofstream& wf);
         void writeBit(std::ofstream& wf, int bit);
 };
 

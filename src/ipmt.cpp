@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include "my_algorithms.h"
 
 using namespace std;
@@ -105,6 +106,24 @@ void searchLine(const vector<string>& patterns, int& countOcorrences, bool count
     if(!countFlag) {
         printOcurrences(textLine, lineIndex++, matchLengths);
     }
+}
+
+string solveHuffman(const string& table, const string& encoded) {
+    Huffman huffman;
+    stringstream ss(table);
+    char letter;
+    string code;
+    while(ss >> letter) {
+        ss >> code;
+        huffman.addWord(letter, code);
+    }
+    auto temp = huffman.decode(encoded);
+    string decoded = "";
+    for(auto letter : temp) {
+        if(letter == '~') decoded += '\n';
+        else decoded += letter;
+    }
+    return decoded;
 }
 
 int main(int argc, char **argv) {
@@ -209,23 +228,31 @@ int main(int argc, char **argv) {
             cout << countOcorrences << '\n';
         }
     } else if (curMode == "zip"){
-        fstream indexfile;
-        string filename = argv[optind];
-        string outputfilename = filename + ".myz";
-        indexfile.open(filename);
-        if (!indexfile) {
+        ifstream textfile;
+        string textfilename = argv[optind];
+        string outputfilename = textfilename + ".myz";
+        textfile.open(textfilename);
+        if (!textfile) {
             usage(NON_EXISTING_FILE);
         }
-        string input;
-        getline(indexfile, input);
-        auto huffman = Huffman(input);
-        ofstream outputfile(outputfilename);
-        outputfile << huffman.getFormatedCodes();
-        outputfile << huffman.encode();
-        //indexfile >> input;
-        cout << input << '\n';
+        string textInput = "";
+        string textLine;
+        while(getline(textfile, textLine)) {
+            textInput += textLine + '~';
+        }
+        auto huffman = Huffman(textInput);
+        BinIO outputfile;
+        outputfile.write(huffman.getFormatedCodes(), huffman.encode(), outputfilename);
     } else { // curMode == "unzip"
-
+        string textfilename = argv[optind];
+        BinIO inputfile;
+        
+        auto [table, encoded] = inputfile.read(textfilename);
+        string outputfilename = textfilename;
+        size_t pos = textfilename.find_last_of(".");
+        outputfilename = outputfilename.substr(0, pos);
+        ofstream outputfile(outputfilename);
+        outputfile << solveHuffman(table, encoded);
     }
     return 0;
 }

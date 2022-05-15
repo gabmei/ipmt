@@ -3,7 +3,7 @@ CC = g++
 CFLAGS = -c -std=c++17 -O2 -Wall
 
 OBJDIR := bin
-OBJS := $(addprefix $(OBJDIR)/, ipmt.o Huffman.o SuffixArray.o)
+OBJS := $(addprefix $(OBJDIR)/, ipmt.o Huffman.o SuffixArray.o BinIO.o)
 
 $(OBJDIR)/%.o : ./src/%.cpp
 	$(CC) $(CFLAGS) $(OUTPUT_OPTION) $<
