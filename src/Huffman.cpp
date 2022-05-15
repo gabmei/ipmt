@@ -75,7 +75,8 @@ void Huffman::initFreqs() {
 }
 
 void Huffman::initTree() {
-    std::priority_queue<Node*, std::vector<Node*>, std::greater<Node*>> pq;
+    auto cmp = [](const Node* a, const Node* b) { return a->freq > b->freq; };
+    std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> pq(cmp);
     for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
         int id = charID(letter);
         if(freqs[id] > 0){
@@ -96,6 +97,7 @@ void Huffman::initTree() {
         pq.push(node);
     }
     root = pq.top();
+    pq.pop();
 }
 void Huffman::initCodes(Node* curRoot, std::string curCode) {
     if(curRoot->left == nullptr) {

@@ -237,8 +237,11 @@ int main(int argc, char **argv) {
         }
         string textInput = "";
         string textLine;
+        bool firstLine = true;
         while(getline(textfile, textLine)) {
-            textInput += textLine + '~';
+            if(!firstLine) textInput += '~';
+            firstLine = false;
+            textInput += textLine;
         }
         auto huffman = Huffman(textInput);
         BinIO outputfile;

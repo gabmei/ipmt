@@ -22,9 +22,6 @@ public:
             delete left;
             delete right;
         }
-        bool operator < (const Node& other) const {
-            return freq < other.freq;
-        }
     };
 
     Huffman(const std::string& word);
