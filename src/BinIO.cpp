@@ -54,7 +54,7 @@ void BinIO::write(std::string table, std::string code, std::string filename){
     int size = table.length();
     wf.write((char *)&size, sizeof(size));
     //write table to file
-    wf.write(&table[0],size);
+    wf.write(&table[0], size);
     //write code size to file
     wf.write((char *)&codeSize, sizeof(codeSize));
     //write code to file
@@ -73,22 +73,20 @@ std::pair<std::string, std::string> BinIO::read(std::string filename){
     std::pair<std::string, std::string> ret;
     //read table size
     int size;
-    char aux;
-    rf.read(&aux, 4);
-    size = (int)aux;
+    rf.read((char *)&size, sizeof(size));
+    std::cout << size << '\n';
     //read table
     table.resize(size);
-    rf.read(&table[0], size);
+    rf.read((char*)&table[0], size);
     ret.first = table;
     //read code size
-    rf.read((char *)&aux, 4);
-    size = (int)aux;
+    rf.read((char *)&size, sizeof(size));
+    std::cout << size << '\n';
     ret.second = convertReadFile(filename, rf, size);
     
-    rf.read((char *)&aux, 4);
-    int cnt = (int)aux;
+    rf.read((char *)&size, sizeof(size));
     rf.close();
     
-    while(cnt-- > 0) ret.second.pop_back();
+    while(size-- > 0) ret.second.pop_back();
     return ret;
 }
