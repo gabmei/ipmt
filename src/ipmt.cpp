@@ -15,7 +15,14 @@ enum InterruptionTypes {
     UNKNOWN_ARGUMENT
 };
 string InterruptionMessages[] = {
-    "Help",
+    "Usages:\n"
+    "./bin/ipmt index textfile                         index textfile to a .idx file\n" 
+    "./bin/ipmt search [options] pattern indexfile     search for pattern in indexfile\n"
+    "options:\n"
+    "   -c            :                                count occorrences of pattern(s) in indexfile\n"
+    "   -p patternfile:                                search for multiple patterns in indexfile\n"
+    "./bin/ipmt zip textfile                           compress textfile to textfile.myz with Huffman's algorithm\n"
+    "./bin/ipmt unzip textfile.myz                     decompress textfile.myz to textfile with Huffman's algorithm",
     "File not found",
     "Unknown option"
 };
