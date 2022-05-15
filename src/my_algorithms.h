@@ -63,3 +63,19 @@ private:
     int upperBound(const std::string& pattern);
 };
 #endif // SUFFIXARRAY_H
+#ifndef BINIO_H
+#define BINIO_H
+struct BinIO{
+    public:
+        BinIO();
+        std::pair<std::string,std::string> read();
+        void write(std::string table, std::string code);
+    private:
+        int currentBit;
+        unsigned char bitBuffer;
+        std::string convertReadFile(std::string filename, std::ifstream& file, int codeSize);
+        void flushBits(std::ofstream& wf);
+        void writeBit(std::ofstream& wf, int bit);
+};
+
+#endif // BINIO_H
