@@ -25,7 +25,8 @@ void usage(InterruptionTypes status) {
 
 #define RED "\033[1;31m"
 #define WHITE "\033[0m"
-void printOcurrences(const string& textLine, int lineIndex, vector<int>& matchLengths){
+void printOcurrences(const string& textLine, int lineIndex, vector<int>& matchLengths) {
+    if(textLine.empty()) return;
     if(*max_element(begin(matchLengths), end(matchLengths)) == 0) return;
     int textLen = (int)textLine.length();
     int redIndex = 0;

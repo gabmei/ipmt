@@ -40,48 +40,56 @@ int& SuffixArray::operator[](int index) { return sa[index]; }
 
 void SuffixArray::countSort(const std::vector<int>& count) {
     int len = (int)sa.size();
-	std::vector<int> cnt(len + 1), newSa(len);
-	for(int x : count) ++cnt[x + 1];
-	for(int i = 1; i < len; ++i) cnt[i] += cnt[i - 1];
-	for(int x : sa) newSa[ cnt[count[x]]++ ] = x;
-	sa.swap(newSa);
+    std::vector<int> cnt(len + 1), newSa(len);
+    for(int x : count) {
+        ++cnt[x + 1];
+    }
+    for(int i = 1; i < len; ++i) {
+        cnt[i] += cnt[i - 1];
+    }
+    for(int x : sa) {
+        newSa[ cnt[count[x]]++ ] = x;
+    }
+    sa.swap(newSa);
 }
 
 void SuffixArray::buildSuffixArray() {
     int len = (int)text.size();
-	auto mod = [&](int x) {
-		if(x < 0) x += len;
-		else if(x >= len) x -= len;
-		return x;
-	};
-	this->sa.assign(len, 0);
+    auto mod = [&](int x) {
+        if(x < 0) x += len;
+        else if(x >= len) x -= len;
+        return x;
+    };
+    this->sa.assign(len, 0);
     std::vector<int> count(len, 0); 
-	iota(begin(sa), end(sa), 0); //sa[i] = i
-	sort(begin(sa),end(sa),[&](int a, int b) { return text[a] < text[b]; });
-	int m = 0;
-	count[sa[0]] = m++;
-	for(int i = 1; i < len; ++i){
-		count[sa[i]] = text[sa[i]] != text[sa[i - 1]] ? m++ : m-1;
-	}
-	for(int h = 1; h < len && m < len; h <<= 1) {
-		for(int& x : sa) x = mod(x - h);
-		countSort(count);
-		std::vector<int> newCount(len);
-		m = 0;
-		newCount[sa[0]] = m++;
-		for(int i = 1; i < len; ++i){
-			std::pair<int,int> prev = {count[sa[i - 1]], count[mod(sa[i - 1] + h)]};
-			std::pair<int,int> cur = {count[sa[i]], count[mod(sa[i] + h)]};
-			newCount[sa[i]] = prev != cur ? m++ : m-1;
-		}
-		count.swap(newCount);
-	}
+    iota(begin(sa), end(sa), 0); //sa[i] = i
+    sort(begin(sa), end(sa), [&](int a, int b) { return text[a] < text[b]; });
+    int m = 0;
+    count[sa[0]] = m++;
+    for(int i = 1; i < len; ++i) {
+        count[sa[i]] = text[sa[i]] != text[sa[i - 1]] ? m++ : m-1;
+    }
+    for(int h = 1; h < len && m < len; h <<= 1) {
+        for(int& x : sa) {
+            x = mod(x - h);
+        }
+        countSort(count);
+        std::vector<int> newCount(len);
+        m = 0;
+        newCount[sa[0]] = m++;
+        for(int i = 1; i < len; ++i){
+            std::pair<int,int> prev = {count[sa[i - 1]], count[mod(sa[i - 1] + h)]};
+            std::pair<int,int> cur = {count[sa[i]], count[mod(sa[i] + h)]};
+            newCount[sa[i]] = prev != cur ? m++ : m-1;
+        }
+    count.swap(newCount);
+    }
 }
 
 int SuffixArray::lowerBound(const std::string& pattern) {
     int lo = 0, hi = (int)text.size();
     int len = (int)pattern.size();
-    while(hi - lo > 1){
+    while(hi - lo > 1) {
         int m = (lo + hi)/2;
         if(text.substr(sa[m], len) < pattern) lo = m;
         else hi = m; 
@@ -92,7 +100,7 @@ int SuffixArray::lowerBound(const std::string& pattern) {
 int SuffixArray::upperBound(const std::string& pattern) {
     int lo = 0, hi = (int)text.size();
     int len = (int)pattern.size();
-    while(hi - lo > 1){
+    while(hi - lo > 1) {
         int m = (lo + hi)/2;
         if(text.substr(sa[m], len) > pattern) hi = m;
         else lo = m; 
