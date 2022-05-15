@@ -6,7 +6,6 @@ const static int firstLetter = ' ';
 static int charID(char c) { return int(c) - int(firstLetter); }
 const static int alpha = 95;
 
-
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 struct Huffman {
@@ -30,6 +29,7 @@ public:
     void addWord(char letter, const std::string& code);
     std::string encode();
     std::string decode(const std::string& encoded);
+    unsigned char binaryStringToByte(std::string str);
     std::string getFormatedCodes();
 private:
     Node* root;
@@ -70,14 +70,13 @@ private:
 struct BinIO{
     public:
         BinIO();
-        std::pair<std::string,std::string> read(std::string filename);
-        void write(std::string table, std::string code, std::string filename);
+        std::pair<std::string,std::string> read(const std::string& filename);
+        void write(const std::string& table, const std::string& code, const std::string& filename);
     private:
         int currentBit;
         unsigned char bitBuffer;
-        std::string convertReadFile(std::string filename, std::ifstream& file, int codeSize);
-        int flushBits(std::ofstream& wf);
+        std::string convertReadFile(const std::string& filename, std::ifstream& file, int codeSize);
+        unsigned char flushBits(std::ofstream& wf);
         void writeBit(std::ofstream& wf, int bit);
 };
-
 #endif // BINIO_H

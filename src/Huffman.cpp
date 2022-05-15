@@ -57,12 +57,24 @@ std::string Huffman::decode(const std::string& encoded) {
     return originalText;
 }
 
+unsigned char Huffman::binaryStringToByte(std::string str) {
+    unsigned char res = 0;
+    while(!str.empty()) {
+        res <<= 1;
+        if(str.back() == '1') res |= 0x1;
+        str.pop_back();
+    }
+    return res;
+}
+
 std::string Huffman::getFormatedCodes() {
     std::string printedCodes = "";
     for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
         int id = charID(letter);
         if(freqs[id] > 0){
-            printedCodes += std::string(1, letter) + codes[letter] + '\n';
+            printedCodes += std::string(1, letter);
+            printedCodes += char(int(codes[letter].size()) + '0');
+            printedCodes += binaryStringToByte(codes[letter]);
         }   
     }
     return printedCodes;

@@ -23,7 +23,7 @@ void usage(InterruptionTypes status) {
     std::cerr << InterruptionMessages[status] << '\n'; 
     exit (status);
 }
-
+#define ENDL '~'
 #define RED "\033[1;31m"
 #define WHITE "\033[0m"
 void printOcurrences(const string& textLine, int lineIndex, vector<int>& matchLengths) {
@@ -31,7 +31,7 @@ void printOcurrences(const string& textLine, int lineIndex, vector<int>& matchLe
     if(*max_element(begin(matchLengths), end(matchLengths)) == 0) return;
     int textLen = (int)textLine.length();
     int redIndex = 0;
-    cout << "Line " << lineIndex << ": ";
+    //cout << "Line " << lineIndex << ": ";
     bool onRed = false;
     for (int i = 0; i < textLen; ++i){
         redIndex = max(redIndex, i + matchLengths[i]);
@@ -108,19 +108,29 @@ void searchLine(const vector<string>& patterns, int& countOcorrences, bool count
     }
 }
 
+string byteTobinaryString(unsigned char codeChar, unsigned char codeLen) {
+    string str = "";
+    for(int i = 0; i < codeLen; ++i) {
+        str += ((codeChar & 1) == 1) + '0';
+        codeChar >>= 1;
+    }
+    return str;
+}
+
 string solveHuffman(const string& table, const string& encoded) {
     Huffman huffman;
     stringstream ss(table);
-    char letter;
+    unsigned char letter, codeLen, codeChar;
     string code;
-    while(ss >> letter) {
-        ss >> code;
+    while(ss >> letter >> codeLen >> codeChar) {
+        code = byteTobinaryString(codeChar, codeLen - '0');
         huffman.addWord(letter, code);
+        //cout << letter << ' ' << code << '\n';
     }
     auto temp = huffman.decode(encoded);
     string decoded = "";
     for(auto letter : temp) {
-        if(letter == '~') decoded += '\n';
+        if(letter == ENDL) decoded += '\n';
         else decoded += letter;
     }
     return decoded;
@@ -239,7 +249,7 @@ int main(int argc, char **argv) {
         string textLine;
         bool firstLine = true;
         while(getline(textfile, textLine)) {
-            if(!firstLine) textInput += '~';
+            if(!firstLine) textInput += ENDL;
             firstLine = false;
             textInput += textLine;
         }
@@ -256,6 +266,7 @@ int main(int argc, char **argv) {
         outputfilename = outputfilename.substr(0, pos);
         ofstream outputfile(outputfilename);
         outputfile << solveHuffman(table, encoded);
+        outputfile.close();
     }
     return 0;
 }

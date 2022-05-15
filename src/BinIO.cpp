@@ -13,14 +13,14 @@ void BinIO::writeBit (std::ofstream& wf, int bit) {
     if (bit) bitBuffer |= 0x1;
     currentBit++;
     if (currentBit == 8) {
-        wf.write(reinterpret_cast<char*>(&bitBuffer), 1);
+        wf.write((char *)&bitBuffer, 1);
         currentBit = 0;
         bitBuffer = 0;
     }
 }
 
-int BinIO::flushBits (std::ofstream& wf) {
-    int cnt = 0;
+unsigned char BinIO::flushBits (std::ofstream& wf) {
+    unsigned char cnt = 0;
     while (currentBit) {
         writeBit(wf, 0);
         cnt += 1;
@@ -28,7 +28,7 @@ int BinIO::flushBits (std::ofstream& wf) {
     return cnt;
 }
 
-std::string BinIO::convertReadFile(std::string filename, std::ifstream& file, int codeSize) {
+std::string BinIO::convertReadFile(const std::string& filename, std::ifstream& file, int codeSize) {
     std::vector<unsigned char> fileData(codeSize);
     file.read((char*) &fileData[0], codeSize);
     std::string outputZeroOne = "";
@@ -44,7 +44,7 @@ std::string BinIO::convertReadFile(std::string filename, std::ifstream& file, in
     return outputZeroOne;
 }
 
-void BinIO::write(std::string table, std::string code, std::string filename){
+void BinIO::write(const std::string& table, const std::string& code, const std::string& filename){
     std::ofstream wf(filename, std::ios::binary);
     int codeSize = code.length() / 8;
     if(code.length() % 8 != 0) {
@@ -67,7 +67,7 @@ void BinIO::write(std::string table, std::string code, std::string filename){
     wf.close();
 }
 
-std::pair<std::string, std::string> BinIO::read(std::string filename){
+std::pair<std::string, std::string> BinIO::read(const std::string& filename){
     std::ifstream rf(filename, std::ios::binary);
     std::string table;
     std::pair<std::string, std::string> ret;
@@ -82,9 +82,9 @@ std::pair<std::string, std::string> BinIO::read(std::string filename){
     rf.read((char *)&size, sizeof(size));
     ret.second = convertReadFile(filename, rf, size);
     
-    rf.read((char *)&size, sizeof(size));
+    unsigned char cnt;
+    rf.read((char *)&cnt, sizeof(cnt));
     rf.close();
-    
-    while(size-- > 0) ret.second.pop_back();
+    for(int i = 0; i < cnt; ++ i) ret.second.pop_back();
     return ret;
 }
