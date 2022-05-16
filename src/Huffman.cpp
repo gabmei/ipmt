@@ -86,22 +86,18 @@ std::string Huffman::binaryStringToBytes(const std::string& str) {
 
 std::string Huffman::getFormatedCodes() {
     std::string printedCodes = "";
-    int maxLen = 0;
-    for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
-        int id = charID(letter);
+    for(int id = charID(firstLetter); id < alpha + 1; ++id) {
+        auto letter = getChar(id);
         if(freqs[id] > 0){
             printedCodes += std::string(1, letter);
             printedCodes += char(int(codes[letter].size()) + '0');
-            //std::cout << letter << ": " << codes[letter] << '\n';
-            maxLen = std::max(maxLen, (int)codes[letter].size());
             printedCodes += binaryStringToBytes(codes[letter]);
         }   
     }
-    //std::cout << "max code len: " << maxLen << '\n';
     return printedCodes;
 }
 void Huffman::initFreqs() {
-    freqs.assign(alpha, 0);
+    freqs.assign(alpha + 1, 0);
     for(auto& letter : word){
         freqs[charID(letter)] += 1;
     }
@@ -110,9 +106,9 @@ void Huffman::initFreqs() {
 void Huffman::initTree() {
     auto cmp = [](const Node* a, const Node* b) { return a->freq > b->freq; };
     std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> pq(cmp);
-    for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
-        int id = charID(letter);
-        if(freqs[id] > 0){
+    for(int id = charID(firstLetter); id < alpha + 1; ++id) {
+        auto letter = getChar(id);
+        if(freqs[id] > 0) {
             auto* node = new Node(letter, freqs[id]);
             pq.push(node);
         }
@@ -129,6 +125,7 @@ void Huffman::initTree() {
         node->right = right;
         pq.push(node);
     }
+    if(pq.empty()) return;
     root = pq.top();
     pq.pop();
 }

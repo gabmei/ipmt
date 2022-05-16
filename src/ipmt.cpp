@@ -30,7 +30,7 @@ void usage(InterruptionTypes status) {
     std::cerr << InterruptionMessages[status] << '\n'; 
     exit (status);
 }
-#define ENDL 'á'
+
 #define RED "\033[1;31m"
 #define WHITE "\033[0m"
 void printOcurrences(const string& textLine, int lineIndex, vector<int>& matchLengths) {
@@ -115,20 +115,19 @@ void searchLine(const vector<string>& patterns, int& countOcorrences, bool count
     }
 }
 
-string byteTobinaryString(unsigned char codeChar, unsigned char codeLen) {
+string byteTobinaryString(char codeChar, char codeLen) {
     string str = "";
     for(int i = 0; i < codeLen; ++i) {
         str += ((codeChar & 1) == 1) + '0';
         codeChar >>= 1;
     }
-    //cout << str << ' ';
     return str;
 }
 
-string bytesTobinaryString(vector<unsigned char> codesChar, unsigned char codeLen) {
+string bytesTobinaryString(const vector<char>& codesChar, char codeLen) {
     string str = "";
     int len = (int)codesChar.size();
-    unsigned char getLen = codeLen > 8 ? codeLen % 8 : codeLen;
+    char getLen = codeLen > 8 ? codeLen % 8 : codeLen;
     for(int i = 0; i < len; ++i) {
         if(i + 1 < len) str += byteTobinaryString(codesChar[i], 8);
         else str += byteTobinaryString(codesChar[i], getLen);
@@ -138,25 +137,20 @@ string bytesTobinaryString(vector<unsigned char> codesChar, unsigned char codeLe
 
 string solveHuffman(const string& table, const string& encoded) {
     Huffman huffman;
-    stringstream ss(table);
-    unsigned char letter, codeLen, codeChar;
+    istringstream ss(table);
+    char letter, codeLen;
     string code;
-    while(ss >> noskipws >> letter >> codeLen) {
+    while(ss.get(letter)) {
+        ss.get(codeLen);
         codeLen -= '0';
-        vector<unsigned char> codesChar((codeLen + 7) / 8);
-        //cout << "number of chars needed " << (int)codesChar.size() << '\n';
+        vector<char> codesChar((codeLen + 7) / 8);
         for(auto& codeChar: codesChar) {
-            ss >> codeChar;
+            ss.get(codeChar);
         }
-        //cout << letter << ' ';
         code = bytesTobinaryString(codesChar, codeLen);
-        //cout << '\n';
         huffman.addWord(letter, code);
     }
     auto decoded = huffman.decode(encoded);
-    for(auto& letter : decoded) {
-        if(letter == ENDL) letter = '\n';
-    }
     return decoded;
 }
 
@@ -270,17 +264,10 @@ int main(int argc, char **argv) {
         if (!textfile) {
             usage(NON_EXISTING_FILE);
         }
-        string textInput = "";
-        string textLine;
-        bool firstLine = true;
-        while(getline(textfile, textLine)) {
-            if(!firstLine) textInput += ENDL;
-            firstLine = false;
-            textInput += textLine;
-        }
-        auto huffman = Huffman(textInput);
+        string textinput = "";
+        for(char textletter; textfile.get(textletter); textinput += textletter);
+        auto huffman = Huffman(textinput);
         BinIO outputfile;
-        //cout << huffman.getFormatedCodes() << '\n';
         outputfile.write(huffman.getFormatedCodes(), huffman.encode(), outputfilename);
     } else { // curMode == "unzip"
         string textfilename = argv[optind];

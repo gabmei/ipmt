@@ -3,8 +3,9 @@
 #include <unordered_map>
 
 const static int firstLetter = ' ';
-static int charID(char c) { return int(c) - int(firstLetter); }
 const static int alpha = 95;
+static int charID(char c) { return c == '\n' ? alpha : int(c) - int(firstLetter); }
+static char getChar(int id) { return id == alpha ? '\n' : firstLetter + id; }
 
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
