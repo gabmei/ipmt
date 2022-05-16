@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 
+const static int TEXT_LIM = 3e7;
 const static int firstLetter = ' ';
 const static int alpha = 95;
 static int charID(char c) { return c == '\n' ? alpha : int(c) - int(firstLetter); }
@@ -72,12 +73,12 @@ private:
 struct BinIO{
     public:
         BinIO();
-        std::pair<std::string,std::string> read(const std::string& filename);
-        void write(const std::string& table, const std::string& code, const std::string& filename);
+        std::pair<std::string,std::string> read(std::ifstream& rf);
+        void write(const std::string& table, const std::string& code, std::ofstream& wf);
     private:
         int currentBit;
         unsigned char bitBuffer;
-        std::string convertReadFile(const std::string& filename, std::ifstream& file, int codeSize);
+        std::string convertReadFile(std::ifstream& file, int codeSize);
         unsigned char flushBits(std::ofstream& wf);
         void writeBit(std::ofstream& wf, int bit);
 };

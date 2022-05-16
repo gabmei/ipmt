@@ -154,7 +154,6 @@ string solveHuffman(const string& table, const string& encoded) {
     return decoded;
 }
 
-
 int main(int argc, char **argv) {
     int opt;
     bool countFlag = false;
@@ -264,21 +263,43 @@ int main(int argc, char **argv) {
         if (!textfile) {
             usage(NON_EXISTING_FILE);
         }
-        string textinput = "";
-        for(char textletter; textfile.get(textletter); textinput += textletter);
-        auto huffman = Huffman(textinput);
+        textfile.seekg(0,std::ios_base::end);
+        std::streampos endPos = textfile.tellg();
+        textfile.seekg(0,std::ios_base::beg);
+        long long temp = endPos;
+        int huffmanCount = (temp + TEXT_LIM - 1)/ TEXT_LIM;
+        std::ofstream wf(outputfilename, std::ios::binary);
+        wf.write((char *)&huffmanCount, sizeof(huffmanCount));
+        
         BinIO outputfile;
-        outputfile.write(huffman.getFormatedCodes(), huffman.encode(), outputfilename);
+        string textinput = "";
+        for(char textletter; textfile.get(textletter); textinput += textletter) {
+            if((int)textinput.size() == TEXT_LIM) {
+                auto huffman = Huffman(textinput);
+                outputfile.write(huffman.getFormatedCodes(), huffman.encode(), wf);
+                textinput = "";
+            }
+        }
+        if(!textinput.empty()) {
+            auto huffman = Huffman(textinput);
+            outputfile.write(huffman.getFormatedCodes(), huffman.encode(), wf);
+        }
+        wf.close();
     } else { // curMode == "unzip"
         string textfilename = argv[optind];
-        BinIO inputfile;
-        
-        auto [table, encoded] = inputfile.read(textfilename);
+        ifstream rf(textfilename, std::ios::binary);
+        int huffmanCount;
+        rf.read((char *)&huffmanCount, sizeof(huffmanCount));
         string outputfilename = textfilename;
         size_t pos = textfilename.find_last_of(".");
         outputfilename = outputfilename.substr(0, pos);
+        BinIO inputfile;
         ofstream outputfile(outputfilename);
-        outputfile << solveHuffman(table, encoded);
+        for(int i = 0; i < huffmanCount; ++i){
+            auto [table, encoded] = inputfile.read(rf);
+            outputfile << solveHuffman(table, encoded);
+        }
+        rf.close();
         outputfile.close();
     }
     return 0;

@@ -28,7 +28,7 @@ unsigned char BinIO::flushBits (std::ofstream& wf) {
     return cnt;
 }
 
-std::string BinIO::convertReadFile(const std::string& filename, std::ifstream& file, int codeSize) {
+std::string BinIO::convertReadFile(std::ifstream& file, int codeSize) {
     std::vector<unsigned char> fileData(codeSize);
     file.read((char*) &fileData[0], codeSize);
     std::string outputZeroOne = "";
@@ -44,8 +44,7 @@ std::string BinIO::convertReadFile(const std::string& filename, std::ifstream& f
     return outputZeroOne;
 }
 
-void BinIO::write(const std::string& table, const std::string& code, const std::string& filename){
-    std::ofstream wf(filename, std::ios::binary);
+void BinIO::write(const std::string& table, const std::string& code, std::ofstream& wf){
     int codeSize = code.length() / 8;
     if(code.length() % 8 != 0) {
         codeSize++;
@@ -64,11 +63,9 @@ void BinIO::write(const std::string& table, const std::string& code, const std::
     }
     auto cnt = flushBits(wf);
     wf.write((char *)&cnt, sizeof(cnt));
-    wf.close();
 }
 
-std::pair<std::string, std::string> BinIO::read(const std::string& filename){
-    std::ifstream rf(filename, std::ios::binary);
+std::pair<std::string, std::string> BinIO::read(std::ifstream& rf){
     std::string table;
     std::pair<std::string, std::string> ret;
     //read table size
@@ -80,11 +77,10 @@ std::pair<std::string, std::string> BinIO::read(const std::string& filename){
     ret.first = table;
     //read code size
     rf.read((char *)&size, sizeof(size));
-    ret.second = convertReadFile(filename, rf, size);
+    ret.second = convertReadFile(rf, size);
     
     unsigned char cnt;
     rf.read((char *)&cnt, sizeof(cnt));
-    rf.close();
     for(int i = 0; i < cnt; ++ i) ret.second.pop_back();
     return ret;
 }
