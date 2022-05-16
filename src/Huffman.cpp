@@ -47,7 +47,7 @@ std::string Huffman::encode() {
 std::string Huffman::decode(const std::string& encoded) {
     std::string originalText = "";
     auto cur = root;
-    for(auto& bit : encoded){
+    for(auto& bit : encoded) {
         cur = bit == '0' ? cur->left : cur->right;
         if(cur->left == nullptr) {
             originalText += cur->letter;
@@ -91,6 +91,7 @@ std::string Huffman::getFormatedCodes() {
         if(freqs[id] > 0){
             printedCodes += std::string(1, letter);
             printedCodes += char(int(codes[letter].size()) + '0');
+            //std::cout << letter << ' ' << codes[letter] << '\n';
             printedCodes += binaryStringToBytes(codes[letter]);
         }   
     }
@@ -113,7 +114,13 @@ void Huffman::initTree() {
             pq.push(node);
         }
     }
-    while(int(pq.size()) > 1) {
+    if((int)pq.size() == 1) {
+        root->left = new Node();
+        root->right = new Node();
+        root->left = pq.top();
+        return;
+    }
+    while((int)pq.size() > 1) {
         auto left = pq.top();
         pq.pop();
         auto right = pq.top();
