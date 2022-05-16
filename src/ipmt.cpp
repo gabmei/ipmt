@@ -127,10 +127,10 @@ string byteTobinaryString(char codeChar, char codeLen) {
 string bytesTobinaryString(const vector<char>& codesChar, char codeLen) {
     string str = "";
     int len = (int)codesChar.size();
-    char getLen = codeLen > 8 ? codeLen % 8 : codeLen;
+    char lastLen = codeLen % 8 > 0 ? codeLen % 8 : 8;
     for(int i = 0; i < len; ++i) {
         if(i + 1 < len) str += byteTobinaryString(codesChar[i], 8);
-        else str += byteTobinaryString(codesChar[i], getLen);
+        else str += byteTobinaryString(codesChar[i], lastLen);
     }
     return str;
 }
@@ -147,7 +147,7 @@ string solveHuffman(const string& table, const string& encoded) {
         for(auto& codeChar: codesChar) {
             ss.get(codeChar);
         }
-        code = bytesTobinaryString(codesChar, codeLen);
+        code = bytesTobinaryString(codesChar, codeLen);;
         huffman.addWord(letter, code);
     }
     auto decoded = huffman.decode(encoded);
