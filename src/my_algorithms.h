@@ -29,7 +29,8 @@ public:
     void addWord(char letter, const std::string& code);
     std::string encode();
     std::string decode(const std::string& encoded);
-    unsigned char binaryStringToByte(std::string str);
+    unsigned char binaryStringToByte(std::string& str);
+    std::string binaryStringToBytes(const std::string& str);
     std::string getFormatedCodes();
 private:
     Node* root;

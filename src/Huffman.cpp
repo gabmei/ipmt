@@ -57,7 +57,7 @@ std::string Huffman::decode(const std::string& encoded) {
     return originalText;
 }
 
-unsigned char Huffman::binaryStringToByte(std::string str) {
+unsigned char Huffman::binaryStringToByte(std::string& str) {
     unsigned char res = 0;
     while(!str.empty()) {
         res <<= 1;
@@ -67,16 +67,37 @@ unsigned char Huffman::binaryStringToByte(std::string str) {
     return res;
 }
 
+
+std::string Huffman::binaryStringToBytes(const std::string& str) {
+    std::string bytes = "";
+    std::string curByte = "";
+    int bitCount = 0;
+    for(auto& bit : str) {
+        bitCount += 1;
+        curByte += bit;
+        if(bitCount == 8) {
+            bitCount = 0;
+            bytes += binaryStringToByte(curByte);
+        }
+    }
+    if(!curByte.empty()) bytes += binaryStringToByte(curByte);
+    return bytes;
+}
+
 std::string Huffman::getFormatedCodes() {
     std::string printedCodes = "";
+    int maxLen = 0;
     for(char letter = firstLetter; charID(letter) < alpha; ++letter) {
         int id = charID(letter);
         if(freqs[id] > 0){
             printedCodes += std::string(1, letter);
             printedCodes += char(int(codes[letter].size()) + '0');
-            printedCodes += binaryStringToByte(codes[letter]);
+            //std::cout << letter << ": " << codes[letter] << '\n';
+            maxLen = std::max(maxLen, (int)codes[letter].size());
+            printedCodes += binaryStringToBytes(codes[letter]);
         }   
     }
+    //std::cout << "max code len: " << maxLen << '\n';
     return printedCodes;
 }
 void Huffman::initFreqs() {
