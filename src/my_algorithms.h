@@ -2,7 +2,7 @@
 #include <vector>
 #include <unordered_map>
 
-const static int TEXT_LIM = 3e7;
+const static int TEXT_LIM = 3e6;
 const static int firstLetter = ' ';
 const static int alpha = 95;
 static int charID(char c) { return c == '\n' ? alpha : int(c) - int(firstLetter); }
