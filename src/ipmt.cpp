@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
         outputfilename = outputfilename.substr(0, pos);
         BinIO inputfile;
         ofstream outputfile(outputfilename);
-        while(!rf.eof()){
+        while(rf.peek() != EOF){
             auto [table, encoded] = inputfile.read(rf);
             outputfile << solveHuffman(table, encoded);
         }
