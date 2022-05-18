@@ -213,10 +213,10 @@ int main(int argc, char **argv) {
         }
         indexfilename += ".idx";
         ifstream textfile(textfilename);
-        ofstream indexfile(indexfilename);
         if(!textfile) {
             usage(NON_EXISTING_FILE);
         }
+        ofstream indexfile(indexfilename);
         vector<string> textLines;
         string textLine;
         while(getline(textfile, textLine)) {
