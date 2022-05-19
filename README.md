@@ -6,13 +6,13 @@ Ferramenta de busca de padrão em texto
 
 ##### Instruções de compilação
 
-na pasta raiz do projeto execute o comando make para gerar o executavel na pasta ./bin
+Na pasta raiz do projeto execute o comando make para gerar o executavel na pasta ./bin
 
 ```
     ../pmt$ make 
 ```
 
-#### instruções de uso
+##### Instruções de uso
 ```
 ./bin/ipmt index textfile                         index textfile to a .idx file
 ./bin/ipmt search [options] pattern indexfile     search for pattern in indexfile
