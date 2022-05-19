@@ -1,5 +1,5 @@
-# Projeto 1 de IF767
-Ferramenta de busca de padrão em texto
+# Projeto 2 de IF767
+Ferramenta de busca offline e compressão/descompressão de arquivos
 ##### Dupla
 - Daniel Pacheco
 - Gabriel Meireles
